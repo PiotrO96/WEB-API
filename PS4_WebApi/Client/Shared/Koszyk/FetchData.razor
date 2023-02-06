@@ -1,0 +1,317 @@
+﻿@page "/koszyk"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Poprawna lista</h3>
+
+@if (Messages != "")
+{
+    <div id="outPopUp" style="position: absolute;  width: 552px;  height: 252px;  z-index: 15;  top: 20%;  left: 50%;  margin: -100px 0 0 -150px;  background: #f6cd2f;">
+        <div id="outPopUp" style="position: absolute;  width: 550px;  height: 248px;    background: #360849;">
+
+            <span style="color:#ECF3F4;font-size:xx-large;display: inline-block;    margin: 10px 10px 0 0;   padding: 5px 10px ">
+                @Messages
+            </span>
+        </div>
+
+    </div>
+}
+
+<table id="tblContainer" style='width: 99%;table-layout:fixed;'>
+    <tr>
+        <td>
+            @if (showAddtoCart == true)
+            {
+                <table style="background-color:#FFFFFF; border: dashed 3px #d55500; padding: 5px;width: 99%;table-layout:fixed;" cellpadding="2"
+                       cellspacing="6">
+                    <tr style="height: 30px;  color:#336699 ;border: solid 1px #659EC7;">
+               
+                        <td>
+
+                            <h2> <strong>Dodaj produkty do koszyka</strong></h2>
+
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td width="10px">&nbsp;</td>
+                        <td>
+                            <table>
+                                <tr>
+                                    
+                                    <td width="10"></td>
+                                    <td align="left" width="500px" valign="top">
+                                        <table style="width:500px;color:#9F000F;font-size:large;width:98%;" cellpadding="4" cellspacing="6">
+                                            <tr style="height: 30px;  color:#416048 ;border-bottom: solid 1px #659EC7;">
+                                                <td>
+                                                    <h2>
+                                                        @selectedItemName
+                                                    </h2>
+                                                </td>
+                                            </tr>
+                                            <tr style="height: 30px;  color:#e13a19 ;border-bottom: solid 1px #659EC7;">
+                                                <td>
+                                                    <h3>
+                                                        Cena : @initialPrice
+                                                    </h3>
+
+                                                </td>
+                                            </tr>
+
+                                            <tr style="height: 30px;  color:#3a729a ;border-bottom: solid 1px #659EC7;">
+                                                <td>
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <h3>
+                                                                    Ilosc : @KO.Zamowienie_Ilosc
+                                                                </h3>
+                                                            </td>
+                                                            <td>
+                                                                <table>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <button class="btn btn-success" @onclick="@(() => IncreaseQty())">Zwieksz</button>
+                                                                        
+                                                                        </td>
+
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <button class="btn btn-success" @onclick="@(() => DecreaseQty())">Zmniejsz</button>
+                                                                          
+                                                                        </td>
+
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td style="color:#e13a19 ;">
+                                                                <h4>
+                                                                    Calkowita ilosc : @KO.Zamowienie_Ilosc
+                                                                </h4>
+                                                            </td>
+                                                        </tr>
+
+
+                                                    </table>
+
+
+                                                </td>
+                                            </tr>
+
+                                            <tr style="height: 30px;  color:#e13a19 ;">
+                                                <td>
+                                                    <h3>
+                                                        Opis :  <input type="text" class="form-control" bind="@KO.Zamowienie_Sklad" />
+                                                    </h3>
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h3>
+                                                      
+                                                            <button class="btn btn-success" @onclick="@(() => SaveShoppingetails())">Zapisz</button>
+                                                        
+                                                    </h3>
+
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            }
+        </td>
+    </tr>
+    <tr>
+        <td><hr style="height: 1px;color: #123455;background-color: #d55500;border: none;color: #d55500;" /></td>
+    </tr>
+    <tr>
+        <td>
+            @if (przedmiots == null)
+            {
+                <p><em>Laduje...</em></p>
+            }
+            else
+            {
+                <table style="background-color:#FFFFFF; border: solid 2px #6D7B8D; padding: 5px;width: 100%;table-layout:fixed;" cellpadding="2" cellspacing="2">
+
+
+                    <tr style="height: 30px; background-color:#336699 ; color:#FFFFFF ;border: solid 1px #659EC7;">
+                        <td width="120" align="center" style="border: solid 1px #FFFFFF; padding: 5px;table-layout:fixed;cursor: pointer;">
+                            <b>Kup</b>
+                        </td>
+
+                        <td width="120" align="center" style="border: solid 1px #FFFFFF; padding: 5px;table-layout:fixed;cursor: pointer;">
+                            <b>Id przedmiotu</b>
+                        </td>
+
+                        <td width="120" align="center" style="border: solid 1px #FFFFFF; padding: 5px;table-layout:fixed;cursor: pointer;">
+                            <b>Nazwa przedmiotu</b>
+                        </td>
+
+                        <td width="120" align="center" style="border: solid 1px #FFFFFF; padding: 5px;table-layout:fixed;cursor: pointer;">
+                            <b>Opis przedmiotu</b>
+                        </td>
+
+                        <td width="50" align="center" style="border: solid 1px #FFFFFF; padding: 5px;table-layout:fixed;cursor: pointer;">
+                            <b>Cena</b>
+                        </td>
+                     
+
+
+                    </tr>
+                  
+                    <tbody>
+                        @foreach (var itmDtl in przedmiots)
+                        {
+                        <tr>
+                            <td align="center" style="border: solid 1px #659EC7; padding: 5px;table-layout:fixed;">
+                                <span style="color:#9F000F">
+                                    <button class="btn btn-success" @onclick="@(() => AddItemtoShoppingCart(itmDtl))">Kup</button>
+
+                                </span>
+
+                            </td>
+                            <td style="border: solid 1px #659EC7; padding: 5px;table-layout:fixed;">
+                                <span style="color:#9F000F">
+                                    @itmDtl.Id
+                                </span>
+                            </td>
+
+                            <td style="border: solid 1px #659EC7; padding: 5px;table-layout:fixed;">
+                                <span style="color:#9F000F">
+                                    @itmDtl.Przedmiot_Nazwa
+                                </span>
+                            </td>
+
+                            <td style="border: solid 1px #659EC7; padding: 5px;table-layout:fixed;">
+                                <span style="color:#9F000F">
+                                    @itmDtl.Przedmiot_Opis
+                                </span>
+                            </td>
+
+                            <td align="right" style="border: solid 1px #659EC7; padding: 5px;table-layout:fixed;">
+                                <span style="color:#9F000F">
+                                    @itmDtl.Przedmiot_Cena
+                                </span>
+                            </td>
+                           
+                            
+
+
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </td>
+    </tr>
+</table>
+
+
+@functions {
+    string Zamowienie_Nalezy = "Piotr";
+    string selectedItemName = "";
+    int initialPrice = 0;
+    string Messages = "";
+
+    Koszyk[] koszyks;
+    Zamowienie[] zamowienies;
+    Przedmiot[] przedmiots;
+
+    Koszyk KO = new Koszyk();
+    Zamowienie ZA = new Zamowienie();
+    Przedmiot PR = new Przedmiot();
+
+    Boolean showAddtoCart = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        przedmiots = await client.GetFromJsonAsync<Przedmiot[]>("api/przedmioty");
+
+    }
+   
+
+
+    //Filtering
+    protected async Task FilteringList(String Value)
+    {
+        przedmiots = await client.GetFromJsonAsync<Przedmiot[]>("api/przedmioty");
+
+        if (Value.Trim().Length > 0)
+        {
+            przedmiots = przedmiots.Where(x => x.Przedmiot_Nazwa.Contains(Value)).ToArray();
+        }
+        else
+        {
+            przedmiots = await client.GetFromJsonAsync<Przedmiot[]>("api/przedmioty");
+        }
+    }
+
+    protected async Task AddItemtoShoppingCart(Przedmiot itemAdd)
+    {
+        showAddtoCart = true;
+        initialPrice = 0;
+
+        KO.Id = itemAdd.Id;
+        selectedItemName = itemAdd.Przedmiot_Nazwa;
+        // KO.Zamowienie_Sklad = itemAdd.Przedmiot_Nazwa;
+        KO.Zamowienie_Ilosc = 1;
+        initialPrice = itemAdd.Przedmiot_Cena;
+        KO.Zamowienie_Ilosc = itemAdd.Przedmiot_Cena;
+        KO.Zamowienie_Nalezy = Zamowienie_Nalezy;
+
+
+
+        KO.Zamowienie_Sklad = "" ;
+    }
+
+
+    void closeMessage()
+    {
+        Messages = "";
+    }
+
+    void IncreaseQty()
+    {
+        if (KO.Zamowienie_Ilosc > 0)
+        {
+            KO.Zamowienie_Ilosc = KO.Zamowienie_Ilosc + 1;
+
+            KO.Zamowienie_Ilosc = initialPrice * KO.Zamowienie_Ilosc;
+
+        }
+
+    }
+
+
+    void DecreaseQty()
+    {
+        if (KO.Zamowienie_Ilosc > 1)
+        {
+
+            KO.Zamowienie_Ilosc = KO.Zamowienie_Ilosc - 1;
+            KO.Zamowienie_Ilosc = initialPrice * KO.Zamowienie_Ilosc;
+        }
+    }
+
+
+    //Save Shopping Details
+
+    protected async Task SaveShoppingetails()
+    {
+        await client.PostAsJsonAsync("/api/ZamowieniaSklep/", KO);
+        Messages = "Dokonano zakupu";
+        KO = null;
+        showAddtoCart = false;
+    }
+
+
+
+}
+

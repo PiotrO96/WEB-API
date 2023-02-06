@@ -1,0 +1,21 @@
+﻿@page "/przedmioty/edytuj/{przedmiotId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+<h3>Edytuj</h3>
+<Form ButtonText="Edytuj" prze="prze"
+      OnValidSubmit="@EdytujPrzedmiot" />
+@code {
+    [Parameter] public int przedmiotId { get; set; }
+    Przedmiot prze = new Przedmiot();
+    protected async override Task OnParametersSetAsync()
+    {
+        prze = await http.GetFromJsonAsync<Przedmiot>($"api/przedmioty/{przedmiotId}");
+    }
+    async Task EdytujPrzedmiot()
+    {
+        await http.PutAsJsonAsync("api/przedmioty", prze);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("przedmioty");
+    }
+}

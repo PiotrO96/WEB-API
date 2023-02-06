@@ -1,0 +1,21 @@
+﻿@page "/zamowienia/edytuj/{zamowienieId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+<h3>Edytuj</h3>
+<Form ButtonText="Edytuj" zamow="zamow"
+      OnValidSubmit="@EdytujZamowienie" />
+@code {
+    [Parameter] public int zamowienieId { get; set; }
+    Zamowienie zamow = new Zamowienie();
+    protected async override Task OnParametersSetAsync()
+    {
+        zamow = await http.GetFromJsonAsync<Zamowienie>($"api/zamowienia/{zamowienieId}");
+    }
+    async Task EdytujZamowienie()
+    {
+        await http.PutAsJsonAsync("api/zamowienia", zamow);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("zamowienia");
+    }
+}

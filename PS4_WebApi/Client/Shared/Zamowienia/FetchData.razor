@@ -1,0 +1,66 @@
+﻿@page "/zamowienia"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Zamowienia</h3>
+<small>Dodaj zamowienie.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="zamowienia/stworz"><i class="oi oi-plus"></i> Dodaj </a>
+</div>
+<br>
+@if (zamowienia == null)
+{
+    <text>Laduje...</text>
+}
+else if (zamowienia.Length == 0)
+{
+    <text>Nie znaleziono.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Numer zamowienia</th>
+                <th>Ilosc zamowienia</th>
+                <th>Sklad zamowienia</th>
+                <th>Do kogo nalezy</th>
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Zamowienie zamowienie in zamowienia)
+            {
+            <tr>
+                <td>@zamowienie.Id</td>
+                <td>@zamowienie.Zamowienie_Nr</td>
+                <td>@zamowienie.Zamowienie_Ilosc</td>
+                <td>@zamowienie.Zamowienie_Sklad</td>
+                <td>@zamowienie.Zamowienie_Nalezy</td>
+
+                <td>
+                    <a class="btn btn-success" href="zamowienia/edytuj/@zamowienie.Id">Edytuj</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(zamowienie.Id))">Usun</button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    Zamowienie[] zamowienia { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        zamowienia = await client.GetFromJsonAsync<Zamowienie[]>("api/zamowienia");
+    }
+    async Task Delete(int zamowieniaId)
+    {
+        var zamow = zamowienia.First(x => x.Id == zamowieniaId);
+        if (await js.InvokeAsync<bool>("confirm", $"Chcesz usunonc {zamow.Zamowienie_Nr}'s ({zamow.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/zamowienia/{zamowieniaId}");
+            await OnInitializedAsync();
+        }
+    }
+}

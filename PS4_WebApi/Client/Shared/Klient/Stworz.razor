@@ -1,0 +1,14 @@
+﻿@page "/klienci/stworz"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+<h3>Stworz</h3>
+<Form ButtonText="Stworz klienta" kli="@klient"
+      OnValidSubmit="@StworzKlienta" />
+@code {
+    Klient klient = new Klient();
+    async Task StworzKlienta()
+    {
+        await http.PostAsJsonAsync("api/klienci", klient);
+        uriHelper.NavigateTo("klienci");
+    }
+}

@@ -1,0 +1,14 @@
+﻿@page "/zamowienia/stworz"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+<h3>Dodaj</h3>
+<Form ButtonText="Dodaj zamowienia" zamow="@zamow"
+      OnValidSubmit="@CreateDeveloper" />
+@code {
+    Zamowienie zamow = new Zamowienie();
+    async Task CreateDeveloper()
+    {
+        await http.PostAsJsonAsync("api/zamowienia", zamow);
+        uriHelper.NavigateTo("zamowienia");
+    }
+}

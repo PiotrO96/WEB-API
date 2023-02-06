@@ -1,0 +1,44 @@
+﻿<EditForm Model="@zamow" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Numer zamowienia :</label>
+        <div>
+            <InputNumber @bind-Value="@zamow.Zamowienie_Nr" />
+            <ValidationMessage For="@(() => zamow.Zamowienie_Nr)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Ilosc :</label>
+        <div>
+            <InputNumber @bind-Value="@zamow.Zamowienie_Ilosc" />
+            <ValidationMessage For="@(() => zamow.Zamowienie_Ilosc)" />
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Sklad zamowienia :</label>
+            <div>
+                <InputText @bind-Value="@zamow.Zamowienie_Sklad" />
+                <ValidationMessage For="@(() => zamow.Zamowienie_Sklad)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Zamowienie nalezy :</label>
+            <div>
+                <InputText @bind-Value="@zamow.Zamowienie_Nalezy" />
+                <ValidationMessage For="@(() => zamow.Zamowienie_Nalezy)" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+</EditForm>
+@code {
+    [Parameter] public Zamowienie zamow { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Zapisz";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

@@ -1,0 +1,180 @@
+﻿@page "/lista"
+@inject HttpClient client
+<h3>Poprawny koszyk</h3>
+<style>
+
+
+    .divContainer {
+        margin-bottom: 5px;
+        position: relative;
+        width: 750px;
+        height: 120px;
+        background-position-y: -10px;
+        background-position-x: 476px;
+        background-repeat: no-repeat;
+        background-size: 120px auto;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid #0192d1;
+        color: #000000;
+        -webkit-transition: border 300ms linear 0s;
+        -moz-transition: border 300ms linear 0s;
+        -o-transition: border 300ms linear 0s;
+        transition: border 300ms linear 0s;
+        /*height: 100px;*/
+    }
+
+        .divContainer:hover, .divContainer:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(32, 46, 64, 0.80);
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.10);
+            color: #a01414;
+            -webkit-transition: border 300ms linear 0s;
+            -moz-transition: border 300ms linear 0s;
+            -o-transition: border 300ms linear 0s;
+            transition: border 300ms linear 0s;
+            height: 120px;
+        }
+</style>
+
+
+@if (Messages != "")
+{
+    <div id="outPopUp" style="position: absolute;  width: 552px;  height: 320px;  z-index: 15;  top: 38%;  left: 50%;  margin: -100px 0 0 -150px;  background: #fbde5a;">
+        <div id="outPopUp" style="position: absolute;  width: 551px;  height: 248px;    background: #fc3a2e;">
+          
+            <span style="color:#ECF3F4;font-size:xx-large;display: inline-block;    margin: 10px 10px 0 0;   padding: 5px 10px ">
+                @Messages
+            </span>
+        </div>
+        <div id="outPopUp" style="position: absolute; top:260px; width:350px;left:24%; height: 70px; ">
+            <h3>
+                <button type="submit" class="btn btn-success" @onclick="@(() => deleteShopping())" style="width:150px;"> Tak
+                   
+                </button>
+                <button type="submit" class="btn btn-danger" @onclick="@closeMessage" style="width:150px;"> Nie
+                   
+                </button>
+            </h3>
+        </div>
+    </div>
+}
+
+<table style="padding: 5px;width: 99%;table-layout:fixed;" cellpadding="2"
+       cellspacing="6">
+    <tr style="height: 30px;  color:#336699 ;border-bottom: solid 1px #ff0000;">
+        <td>
+
+            <h2> Moja lista zakopow</h2>
+        </td>
+
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>
+            @if (mojSkleps == null)
+            {
+                <p><em>Laduje...</em></p>
+            }
+            else
+            {
+
+                @foreach (var mojSklep in mojSkleps)
+                {
+                    <table>
+                        <tr>
+                            <td>
+
+
+                                <table class="divContainer">
+                                    <tr>
+                                        
+                                        <td align="left" valign="top">
+                                            <table>
+                                                <tr>
+                                                    <td valign="top">
+                                                        <h2 style="color:#244f2b">@mojSklep.NazwaPrzedmiotu </h2>
+                                                    </td>
+                                                </tr>
+                                               
+                                                <tr>
+                                                    <td>
+                                                        @mojSklep.Opis
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h3 style="color:#ff0000">  @mojSklep.CalkowitaIlosc (Calkowita ilosc) /  @mojSklep.Ilosc (Ilosc)</h3>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <h3>
+                                                
+                                                    <button type="submit" button class="btn btn-danger" @onclick="@(() => deleteConfirm(mojSklep))">Usun
+                                                </button>
+                                            </h3>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height:10px;">
+                                &nbsp;
+                            </td>
+                        </tr>
+                    </table>
+                }
+            }
+        </td>
+    </tr>
+
+
+
+</table>
+
+
+
+
+@functions {
+
+    Koszyk KO = new Koszyk();
+    string Messages = "";
+    mojSklep[] mojSkleps;
+    int Id = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Id = 0;
+        mojSkleps = await client.GetFromJsonAsync<mojSklep[]>("api/ZamowieniaSklep/");
+    }
+
+
+    protected async Task deleteConfirm(mojSklep sds)
+    {
+
+        Id = sds.SklepId;
+        Messages = "Czy chcesz anulowac " + sds.NazwaPrzedmiotu + " Zamowienie ?";
+    }
+
+    protected async Task deleteShopping()
+    {
+
+        await client.DeleteAsync("/api/ZamowieniaSklep/" + Convert.ToInt32(Id));
+        Messages = "";
+        mojSkleps = await client.GetFromJsonAsync<mojSklep[]>("/api/ZamowieniaSklep/");
+    }
+
+    void closeMessage()
+    {
+        Id = 0;
+        Messages = "";
+
+
+
+    }
+}

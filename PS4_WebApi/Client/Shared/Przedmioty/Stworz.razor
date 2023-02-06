@@ -1,0 +1,14 @@
+﻿@page "/przedmioty/stworz"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+<h3>Dodaj</h3>
+<Form ButtonText="Dodaj przedmiot" prze="@prze"
+      OnValidSubmit="@CreatePrzedmiot" />
+@code {
+    Przedmiot prze = new Przedmiot();
+    async Task CreatePrzedmiot()
+    {
+        await http.PostAsJsonAsync("api/przedmioty", prze);
+        uriHelper.NavigateTo("przedmioty");
+    }
+}

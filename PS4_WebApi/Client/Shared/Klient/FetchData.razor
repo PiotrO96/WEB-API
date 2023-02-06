@@ -1,0 +1,68 @@
+﻿@page "/klienci"
+@inject HttpClient client
+@inject IJSRuntime js
+
+<h3>Klienci</h3>
+<small> Dodaj tylu klientow ile chcesz. </small>
+<div class="form-group">
+    <a class="btn btn-success" href="klienci/stworz"><i class="oi oi-plus"></i> Dodaj nowego</a>
+</div>
+<br>
+
+@if (kliencii == null)
+{
+    <text> Laduje </text>
+}
+else if (kliencii.Length == 0)
+{
+    <text> Nie znaleziono  </text>
+}
+else
+{
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th> ID </th>
+            <th> Imie </th>
+            <th> Nazwisko </th>
+            <th> Email </th>
+            <th> Wiek (Lata) </th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (Klient klien in kliencii)
+        {
+            <tr>
+                <td>@klien.Id</td>
+                <td>@klien.Imie</td>
+                <td>@klien.Nazwisko</td>
+                <td>@klien.Email</td>
+                <td>@klien.Wiek</td>
+                <td>
+                    <a class="btn btn-success" href="klienci/edytuj/@klien.Id">Edytuj</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(klien.Id))">Usun</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    Klient[] kliencii { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        kliencii = await client.GetFromJsonAsync<Klient[]>("api/klienci");
+    }
+    async Task Delete(int klientID)
+    {
+        var klien = kliencii.First(x => x.Id == klientID);
+        if (await js.InvokeAsync<bool>("confirm", $"Chcesz usunonc {klien.Imie}'s ({klien.Id}) Rekord?"))
+        {
+            await client.DeleteAsync($"api/klienci/{klientID}");
+            await OnInitializedAsync();
+        }
+    }
+}

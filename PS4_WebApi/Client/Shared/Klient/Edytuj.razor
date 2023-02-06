@@ -1,0 +1,21 @@
+﻿@page "/klienci/edytuj/{klientID:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+<h3>Edytuj</h3>
+<Form ButtonText="Edytuj" kli="kli"
+      OnValidSubmit="@EdytujKlient" />
+@code {
+    [Parameter] public int klientID { get; set; }
+    Klient kli = new Klient();
+    protected async override Task OnParametersSetAsync()
+    {
+        kli = await http.GetFromJsonAsync<Klient>($"api/klienci/{klientID}");
+    }
+    async Task EdytujKlient()
+    {
+        await http.PutAsJsonAsync("api/klienci", kli);
+        await js.InvokeVoidAsync("alert", $"Zaktualizowano pomyslnie!");
+        uriHelper.NavigateTo("klienci");
+    }
+}

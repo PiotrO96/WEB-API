@@ -1,0 +1,66 @@
+﻿@page "/przedmioty"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Przedmioty</h3>
+<small>Dodaj przedmioty</small>
+<div class="form-group">
+    <a class="btn btn-success" href="przedmioty/stworz"><i class="oi oi-plus"></i> Dodaj</a>
+</div>
+<br>
+@if (przedmioty == null)
+{
+    <text>Laduje...</text>
+}
+else if (przedmioty.Length == 0)
+{
+    <text>Nie znaleziono.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Przedmiot Cena</th>
+                <th>Przedmmiot Nazwa</th>
+                <th>Przedmiot Opis</th>
+              
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Przedmiot prze in przedmioty)
+            {
+                <tr>
+                    <td>@prze.Id</td>
+                    <td>@prze.Przedmiot_Cena</td>
+                    <td>@prze.Przedmiot_Nazwa</td>
+                    <td>@prze.Przedmiot_Opis</td>
+                  
+                    <td>
+                        <a class="btn btn-success" href="przedmioty/edytuj/@prze.Id">Edytuj</a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(prze.Id))">Usun</button>
+                        
+                        <a class="btn btn-success" href="koszyk/">Przejdz do koszyka</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    Przedmiot[] przedmioty { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        przedmioty = await client.GetFromJsonAsync<Przedmiot[]>("api/przedmioty");
+    }
+    async Task Delete(int przedmiotyId)
+    {
+        var prze = przedmioty.First(x => x.Id == przedmiotyId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {prze.Przedmiot_Nazwa}'s ({prze.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/przedmioty/{przedmiotyId}");
+            await OnInitializedAsync();
+        }
+    }
+}

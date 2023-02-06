@@ -1,0 +1,64 @@
+﻿@page "/produkty"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Produkty</h3>
+<small>Dodaj produkty.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="produkty/stworz"><i class="oi oi-plus"></i> Dodaj</a>
+</div>
+<br>
+@if (produkty == null)
+{
+    <text>Laduje...</text>
+}
+else if (produkty.Length == 0)
+{
+    <text>Nie znaleziono.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nazwa produktu</th>
+                <th>Cena produktu</th>
+                <th>Opis produktu</th>
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Produkt produkt in produkty)
+            {
+                <tr>
+                    <td>@produkt.Id</td>
+                    <td>@produkt.Produkt_Nazwa</td>
+                    <td>@produkt.Produkt_Cena</td>
+                    <td>@produkt.Produkt_Opis</td>
+
+                    <td>
+                        <a class="btn btn-success" href="produkty/edytuj/@produkt.Id">Edit</a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(produkt.Id))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    Produkt[] produkty { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        produkty = await client.GetFromJsonAsync<Produkt[]>("api/produkty");
+    }
+    async Task Delete(int produktyId)
+    {
+        var prod = produkty.First(x => x.Id == produktyId);
+        if (await js.InvokeAsync<bool>("confirm", $"Chcesz usunonc {prod.Produkt_Nazwa}'s ({prod.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/zamowienia/{produktyId}");
+            await OnInitializedAsync();
+        }
+    }
+}
